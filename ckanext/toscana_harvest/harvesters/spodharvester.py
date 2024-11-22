@@ -232,7 +232,7 @@ class SpodHarvester(HarvesterBase):
                 return object_ids
 
             else:
-               self._save_gather_error('No packages received for URL: %s' % url,
+                self._save_gather_error('No packages received for URL: %s' % url,
                        harvest_job)
                 log.error("No packages received for URL")
                return None
