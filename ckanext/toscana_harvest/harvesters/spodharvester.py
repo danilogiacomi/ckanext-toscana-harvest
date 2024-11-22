@@ -36,7 +36,7 @@ class SpodHarvester(HarvesterBase):
         return '/api/%d/search' % self.api_version
 
     def _get_content(self, url):
-	    log.error("get_content " + url)
+        log.error("get_content " + url)
         http_request = urllib2.Request(url=url)
 
         api_key = self.config.get('api_key')
