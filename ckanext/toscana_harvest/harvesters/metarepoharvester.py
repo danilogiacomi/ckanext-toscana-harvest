@@ -1,5 +1,4 @@
 import urllib
-import urllib2
 import httplib
 import re
 import unidecode
@@ -62,26 +61,26 @@ class MetarepoHarvester(HarvesterBase):
 #        return '%s/package_search' % self._get_action_api_offset()
 
     def _get_content(self, url):
-        http_request = urllib2.Request(url=url)
+        http_request = urllib.request.Request(url=url)
 
         api_key = self.config.get('api_key')
         if api_key:
             http_request.add_header('Authorization', api_key)
 
         try:
-            http_response = urllib2.urlopen(http_request)
-        except urllib2.HTTPError, e:
+            http_response = urllib.request.urlopen(http_request)
+        except urllib.error.HTTPError as e:
             if e.getcode() == 404:
                 raise ContentNotFoundError('HTTP error: %s' % e.code)
             else:
                 raise ContentFetchError('HTTP error: %s' % e.code)
-        except urllib2.URLError, e:
+        except urllib.error.URLError as e:
             raise ContentFetchError('URL error: %s' % e.reason)
-        except httplib.HTTPException, e:
+        except http.client.HTTPException as e:
             raise ContentFetchError('HTTP Exception: %s' % e)
-        except socket.error, e:
+        except socket.error as e:
             raise ContentFetchError('HTTP socket error: %s' % e)
-        except Exception, e:
+        except Exception as e:
             raise ContentFetchError('HTTP general exception: %s' % e)
         return http_response.read()
 
@@ -169,7 +168,7 @@ class MetarepoHarvester(HarvesterBase):
                         # save the dict to the config object, as we'll need it
                         # in the import_stage of every dataset
                         config_obj['default_group_dicts'].append(group)
-                    except NotFound, e:
+                    except NotFound as e:
                         raise ValueError('Default group not found')
                 config = json.dumps(config_obj)
 
@@ -196,7 +195,7 @@ class MetarepoHarvester(HarvesterBase):
                     if not isinstance(config_obj[key], bool):
                         raise ValueError('%s must be boolean' % key)
 
-        except ValueError, e:
+        except ValueError as e:
             raise e
 
         return config
@@ -248,7 +247,7 @@ class MetarepoHarvester(HarvesterBase):
                 pkg_dicts = self._search_for_datasets(
                     remote_ckan_base_url,
                     fq_terms + [fq_since_last_time])
-            except SearchError, e:
+            except SearchError as e:
                 log.info('Searching for datasets changed since last time '
                          'gave an error: %s', e)
                 get_all_packages = True
@@ -265,7 +264,7 @@ class MetarepoHarvester(HarvesterBase):
             try:
                 pkg_dicts = self._search_for_datasets(remote_ckan_base_url,
                                                       fq_terms)
-            except SearchError, e:
+            except SearchError as e:
                 log.info('Searching for all datasets gave an error: %s', e)
                 self._save_gather_error(
                     'Unable to search remote Metarepo for datasets:%s url:%s'
@@ -300,8 +299,8 @@ class MetarepoHarvester(HarvesterBase):
                 object_ids.append(obj.id)
 
             return object_ids
-        except Exception, e:
-            self._save_gather_error('%r' % e.message, harvest_job)
+        except Exception as e:
+            self._save_gather_error('%r' % e, harvest_job)
 
     def _search_for_datasets(self, remote_ckan_base_url, fq_terms=None):
         '''Does a dataset search on a remote Metarepo and returns the results.
@@ -339,7 +338,7 @@ class MetarepoHarvester(HarvesterBase):
             log.error('Searching for Metarepo datasets: %s', url)
             try:
                 content = self._get_content(url)
-            except ContentFetchError, e:
+            except ContentFetchError as e:
                 raise SearchError(
                     'Error sending request to search remote '
                     'Metarepo instance %s using URL %r. Error: %s' %
@@ -416,7 +415,7 @@ class MetarepoHarvester(HarvesterBase):
         # Get contents
         try:
             content = self._get_content(url)
-        except ContentFetchError,e:
+        except ContentFetchError as e:
             log.error('Unable to get content for package: %s: %r' % (url, e))
             self._save_object_error('Unable to get content for package: %s: %r' % \
                                         (url, e),harvest_object)
@@ -437,7 +436,7 @@ class MetarepoHarvester(HarvesterBase):
             return False
 
         if harvest_object.content is None:
-	    log.error('harvest_object.content is None')
+            log.error('harvest_object.content is None')
             self._save_object_error('Empty content for object %s' %
                                     harvest_object.id,
                                     harvest_object, 'Import')
@@ -447,7 +446,7 @@ class MetarepoHarvester(HarvesterBase):
 
         try:
             response_dict = json.loads(harvest_object.content)
-	    package_dict = response_dict.get('result', {})
+            package_dict = response_dict.get('result', {})
 
             if package_dict.get('type') == 'harvest':
                 log.warn('Remote dataset is a harvest source, ignoring...')
@@ -458,10 +457,10 @@ class MetarepoHarvester(HarvesterBase):
             if default_tags:
                 if not 'tags' in package_dict:
                     package_dict['tags'] = []
-#            	tags = []
-#	        for tag in package_dict['tags']:
-#        	     tags.append(tag['display_name'])
-#            	package_dict['tags'] = tags
+#                tags = []
+#            for tag in package_dict['tags']:
+#                 tags.append(tag['display_name'])
+#                package_dict['tags'] = tags
 
                 package_dict['tags'].extend(
                     [t for t in default_tags if t not in package_dict['tags']])
@@ -485,7 +484,7 @@ class MetarepoHarvester(HarvesterBase):
                         group = get_action('group_show')(base_context.copy(), data_dict)
                         validated_groups.append({'id': group['id'], 'name': group['name']})
 
-                    except NotFound, e:
+                    except NotFound as e:
                         log.info('Group %s is not available', group_)
                         if remote_groups == 'create':
                             try:
@@ -525,7 +524,7 @@ class MetarepoHarvester(HarvesterBase):
                         data_dict = {'id': remote_org}
                         org = get_action('organization_show')(base_context.copy(), data_dict)
                         validated_org = org['id']
-                    except NotFound, e:
+                    except NotFound as e:
                         log.info('Organization %s is not available', remote_org)
                         if remote_orgs == 'create':
                             try:
@@ -601,11 +600,11 @@ class MetarepoHarvester(HarvesterBase):
                 package_dict, harvest_object, package_dict_form='package_show')
 
             return result
-        except ValidationError, e:
+        except ValidationError as e:
             self._save_object_error('Invalid package with GUID %s: %r' %
                                     (harvest_object.guid, e.error_dict),
                                     harvest_object, 'Import')
-        except Exception, e:
+        except Exception as e:
             self._save_object_error('%s' % e, harvest_object, 'Import')
 
 
