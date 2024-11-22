@@ -1,5 +1,5 @@
-import urllib2
-import httplib
+import urllib
+import http
 
 from ckan.lib.base import c
 from ckan import model
@@ -37,15 +37,15 @@ class SpodHarvester(HarvesterBase):
 
     def _get_content(self, url):
         log.error("get_content " + url)
-        http_request = urllib2.Request(url=url)
+        http_request = urllib.request.Request(url=url)
 
         api_key = self.config.get('api_key')
         if api_key:
             http_request.add_header('Authorization', api_key)
 
         try:
-            http_response = urllib2.urlopen(http_request)
-        except urllib2.HTTPError as e:
+            http_response = urllib.request.urlopen(http_request)
+        except urllib.error.HTTPError as e:
             log.error("httperror")
             log.error(e.getcode())
             log.error(e.reason)
@@ -53,12 +53,12 @@ class SpodHarvester(HarvesterBase):
                 raise ContentNotFoundError('HTTP error: %s' % e.code)
             else:
                 raise ContentFetchError('HTTP error: %s' % e.code)
-        except urllib2.URLError as  e:
+        except urllib.error.URLError as  e:
             log.error("urlerror")
             log.error(e.getcode())
             log.error(e.reason)
             raise ContentFetchError('URL error: %s' % e.reason)
-        except httplib.HTTPException as e:
+        except http.client.HTTPException as e:
             log.error("httpexcption")
             log.error(e.getcode())
             log.error(e.reason)
