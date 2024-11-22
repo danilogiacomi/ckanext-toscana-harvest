@@ -235,7 +235,7 @@ class SpodHarvester(HarvesterBase):
                 self._save_gather_error('No packages received for URL: %s' % url,
                        harvest_job)
                 log.error("No packages received for URL")
-               return None
+                return None
         except Exception as e:
             log.error(e.message)
             self._save_gather_error('%r'%e.message,harvest_job)
