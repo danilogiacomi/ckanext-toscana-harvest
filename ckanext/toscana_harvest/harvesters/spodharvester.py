@@ -200,7 +200,7 @@ class SpodHarvester(HarvesterBase):
 
         if get_all_packages:
             # Request all remote packages
-        log.error("Request all remote packages")
+            log.error("Request all remote packages")
             url = base_rest_url + '/package'
             log.error(url)
             try:
