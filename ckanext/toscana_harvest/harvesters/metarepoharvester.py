@@ -1,5 +1,5 @@
 import urllib
-import httplib
+import http
 import re
 import unidecode
 import datetime
