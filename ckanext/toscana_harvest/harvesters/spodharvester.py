@@ -45,23 +45,23 @@ class SpodHarvester(HarvesterBase):
 
         try:
             http_response = urllib2.urlopen(http_request)
-        except urllib2.HTTPError, e:
-	    log.error("httperror")
-	    log.error(e.getcode())
-	    log.error(e.reason)
+        except urllib2.HTTPError as e:
+            log.error("httperror")
+            log.error(e.getcode())
+            log.error(e.reason)
             if e.getcode() == 404:
                 raise ContentNotFoundError('HTTP error: %s' % e.code)
             else:
                 raise ContentFetchError('HTTP error: %s' % e.code)
-        except urllib2.URLError, e:
-	    log.error("urlerror")
-	    log.error(e.getcode())
-	    log.error(e.reason)
+        except urllib2.URLError as  e:
+            log.error("urlerror")
+            log.error(e.getcode())
+            log.error(e.reason)
             raise ContentFetchError('URL error: %s' % e.reason)
-        except httplib.HTTPException, e:
-	    log.error("httpexcption")
-	    log.error(e.getcode())
-	    log.error(e.reason)
+        except httplib.HTTPException as e:
+            log.error("httpexcption")
+            log.error(e.getcode())
+            log.error(e.reason)
             raise ContentFetchError('HTTP Exception: %s' % e)
         return http_response.read()
 
@@ -128,7 +128,7 @@ class SpodHarvester(HarvesterBase):
                 for group_name in config_obj['default_groups']:
                     try:
                         group = get_action('group_show')(context,{'id':group_name})
-                    except NotFound,e:
+                    except NotFound as e:
                         raise ValueError('Default group not found')
 
             if 'default_extras' in config_obj:
@@ -140,7 +140,7 @@ class SpodHarvester(HarvesterBase):
                 context = {'model':model,'user':c.user}
                 try:
                     user = get_action('user_show')(context,{'id':config_obj.get('user')})
-                except NotFound,e:
+                except NotFound as e:
                     raise ValueError('User not found')
 
             for key in ('read_only','force_all'):
@@ -148,7 +148,7 @@ class SpodHarvester(HarvesterBase):
                     if not isinstance(config_obj[key],bool):
                         raise ValueError('%s must be boolean' % key)
 
-        except ValueError,e:
+        except ValueError as e:
             raise e
 
         return config
@@ -200,18 +200,18 @@ class SpodHarvester(HarvesterBase):
 
         if get_all_packages:
             # Request all remote packages
-	    log.error("Request all remote packages")
+        log.error("Request all remote packages")
             url = base_rest_url + '/package'
-	    log.error(url)
+            log.error(url)
             try:
                 content = self._get_content(url)
                 package_ids = json.loads(content)
-            except ContentFetchError,e:
-	        log.error("Unable to get content for URL")
+            except ContentFetchError as e:
+                log.error("Unable to get content for URL")
                 self._save_gather_error('Unable to get content for URL: %s: %s' % (url, str(e)),harvest_job)
                 return None
-            except JSONDecodeError,e:
-	        log.error("Unable to decode content for URL")
+            except JSONDecodeError as e:
+                log.error("Unable to decode content for URL")
                 self._save_gather_error('Unable to decode content for URL: %s: %s' % (url, str(e)),harvest_job)
                 return None
 
@@ -234,10 +234,10 @@ class SpodHarvester(HarvesterBase):
             else:
                self._save_gather_error('No packages received for URL: %s' % url,
                        harvest_job)
-	       log.error("No packages received for URL")
+                log.error("No packages received for URL")
                return None
-        except Exception, e:
-	    log.error(e.message)
+        except Exception as e:
+            log.error(e.message)
             self._save_gather_error('%r'%e.message,harvest_job)
 
 
@@ -253,8 +253,8 @@ class SpodHarvester(HarvesterBase):
         # Get contents
         try:
             content = self._get_content(url)
-        except ContentFetchError,e:
-	    log.error('Unable to get content for package: %s: %r' % (url, e))
+        except ContentFetchError as e:
+            log.error('Unable to get content for package: %s: %r' % (url, e))
             self._save_object_error('Unable to get content for package: %s: %r' % \
                                         (url, e),harvest_object)
             return None
@@ -312,7 +312,7 @@ class SpodHarvester(HarvesterBase):
                             validated_groups.append(group['name'])
                         else:
                             validated_groups.append(group['id'])
-                    except NotFound, e:
+                    except NotFound as e:
                         log.info('Group %s is not available' % group_name)
                         if remote_groups == 'create':
                             try:
@@ -356,7 +356,7 @@ class SpodHarvester(HarvesterBase):
                         data_dict = {'id': remote_org}
                         org = get_action('organization_show')(context, data_dict)
                         validated_org = org['id']
-                    except NotFound, e:
+                    except NotFound as e:
                         log.info('Organization %s is not available' % remote_org)
                         if remote_orgs == 'create':
                             try:
@@ -428,10 +428,10 @@ class SpodHarvester(HarvesterBase):
 
             result = self._create_or_update_package(package_dict,harvest_object)
             return result
-        except ValidationError,e:
+        except ValidationError as e:
             self._save_object_error('Invalid package with GUID %s: %r' % (harvest_object.guid, e.error_dict),
                     harvest_object, 'Import')
-        except Exception, e:
+        except Exception as e:
             self._save_object_error('%r'%e,harvest_object,'Import')
 
 class ContentFetchError(Exception):
