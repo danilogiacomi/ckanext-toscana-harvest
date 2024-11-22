@@ -1,2 +1,2 @@
-from spodharvester import SpodHarvester
-from metarepoharvester import MetarepoHarvester
+from ckanext.toscana_harvesters.spodharvester import SpodHarvester
+from ckanext.toscana_harvesters.metarepoharvester import MetarepoHarvester
