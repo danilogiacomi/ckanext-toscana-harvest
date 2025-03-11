@@ -4,6 +4,7 @@ import re
 import unidecode
 import datetime
 import socket
+import urllib.parse
 
 from sqlalchemy import exists
 
@@ -334,7 +335,9 @@ class MetarepoHarvester(HarvesterBase):
         pkg_ids = set()
         previous_content = None
         while True:
-            url = base_search_url + '?' + urllib.urlencode(params)
+            # url = base_search_url + '?' + urllib.urlencode(params)
+            url = base_search_url + '?' + urllib.parse.urlencode(params)
+
             log.error('Searching for Metarepo datasets: %s', url)
             try:
                 content = self._get_content(url)
