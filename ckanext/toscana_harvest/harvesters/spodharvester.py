@@ -402,7 +402,7 @@ class SpodHarvester(HarvesterBase):
                 override_extras = self.config.get('override_extras',False)
                 if not 'extras' in package_dict:
                     package_dict['extras'] = {}
-                for key,value in default_extras.iteritems():
+                for key,value in default_extras.items():
                     if not key in package_dict['extras'] or override_extras:
                         # Look for replacement strings
                         if isinstance(value,basestring):

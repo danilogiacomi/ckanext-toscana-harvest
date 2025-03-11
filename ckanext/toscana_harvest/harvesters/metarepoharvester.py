@@ -556,7 +556,7 @@ class MetarepoHarvester(HarvesterBase):
                 existing_group_ids = [g['id'] for g in package_dict['groups']]
                 package_dict['groups'].extend(
                     [g for g in self.config['default_group_dicts']
-                     if g['id'] not in existing_group_ids])
+                    if g['id'] not in existing_group_ids])
 
             # Set default extras if needed
             default_extras = self.config.get('default_extras', {})
@@ -568,7 +568,7 @@ class MetarepoHarvester(HarvesterBase):
                 override_extras = self.config.get('override_extras', False)
                 if not 'extras' in package_dict:
                     package_dict['extras'] = {}
-                for key, value in default_extras.iteritems():
+                for key, value in default_extras.items():
                     existing_extra = get_extra(key, package_dict)
                     if existing_extra and not override_extras:
                         continue  # no need for the default
